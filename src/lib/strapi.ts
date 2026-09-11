@@ -93,6 +93,21 @@ export type HeaderContent = {
   links: Array<{ label: string; href: string }>;
 };
 
+export type AboutPageContent = {
+  story: {
+    eyebrow: string;
+    titleLine1: string;
+    titleHighlight: string;
+    titleLine2: string;
+    description: string;
+    buttonLabel: string;
+    buttonUrl: string;
+  };
+  credentials: Array<{ icon: string; top: string; bottom: string }>;
+  sectors: Array<{ icon: string; image?: string; title: string; description: string }>;
+  teamRows: Array<{ top: string; bottom: string }>;
+};
+
 export type ServicesPageContent = {
   hero: {
     eyebrow: string;
@@ -199,8 +214,8 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     hero: {
       eyebrow: textValue(hero.badge_text),
       titleLine1: textValue(hero.main_title),
-      titleHighlight: '',
-      titleLine2: '',
+      titleHighlight: textValue(hero.title_highlight),
+      titleLine2: textValue(hero.title_line2),
       description: textValue(hero.description),
       ctaLabel: menuLabel(hero.button),
       experienceYears: textValue(hero.experience_years),
@@ -231,15 +246,15 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     capabilities: {
       eyebrow: textValue(capabilities.eyebrow),
       title: textValue(capabilities.main_title),
-      detailLabel: '',
-      technologiesLabel: '',
-      footer: '',
+      detailLabel: textValue(capabilities.detail_label || capabilities.detailLabel || ''),
+      technologiesLabel: textValue(capabilities.technologies_label || capabilities.technologiesLabel || ''),
+      footer: textValue(capabilities.footer || ''),
       items: Array.isArray(capabilities.capability_items)
         ? capabilities.capability_items.map((item) => ({
             title: textValue(item.title),
-            short: textValue(item.title),
+            short: textValue(item.short || item.title || ''),
             description: textValue(item.description),
-            technologies: [],
+            technologies: asStringArray(item.technologies),
             icon: textValue(item.icon),
           }))
         : [],
@@ -247,7 +262,7 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     process: {
       eyebrow: textValue(process.eyebrow),
       titleLine1: textValue(process.main_title),
-      titleHighlight: '',
+      titleHighlight: textValue(process.title_highlight),
       items: Array.isArray(process.steps)
         ? process.steps.map((item) => ({
             number: textValue(item.step_number),
@@ -260,7 +275,7 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     caseStudies: {
       eyebrow: textValue(caseStudies.eyebrow),
       titleLine1: textValue(caseStudies.main_title),
-      titleHighlight: '',
+      titleHighlight: textValue(caseStudies.title_highlight),
       items: Array.isArray(caseStudies.case_studies)
         ? caseStudies.case_studies.map((item) => ({
             industry: textValue(item.industry),
@@ -272,10 +287,85 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     cta: {
       eyebrow: '',
       titleLine1: textValue(cta.main_title),
-      titleHighlight: '',
+      titleHighlight: textValue(cta.title_highlight),
       description: textValue(cta.description),
       buttonLabel: menuLabel(cta.button),
     },
+  };
+}
+
+export async function getAboutPageContent(): Promise<AboutPageContent> {
+  const response = await fetch(`${API_URL}/api/pages/slug/about?populate=pageBuilder`);
+  if (!response.ok) throw new Error(`Strapi About page request failed: ${response.status}`);
+
+  const body = (await response.json()) as StrapiSingleResponse<StrapiPage>;
+  if (!body.data?.pageBuilder?.length) {
+    throw new Error('The published About page has no page-builder sections. Add and publish a layout in Strapi.');
+  }
+
+  const sections = body.data.pageBuilder;
+  const section = (name: string) => sections.find((item) => item.__component === name) || {};
+
+  const story = section('acf-sections.qubi-story-section');
+  const stats = section('acf-sections.qubi-stats-section');
+  const sectors = section('acf-sections.qubi-icon-grid-section');
+  const team = section('acf-sections.qubi-differentiators-section');
+
+  const credentials = Array.isArray(stats.stats)
+    ? stats.stats.map((item: Record<string, unknown>) => ({
+        icon: textValue(item.icon),
+        top: textValue(item.value || item.top || item.title),
+        bottom: textValue(item.label || item.bottom || item.description),
+      }))
+    : Array.isArray(stats.items)
+      ? stats.items.map((item: Record<string, unknown>) => ({
+          icon: textValue(item.icon),
+          top: textValue(item.value || item.top || item.title),
+          bottom: textValue(item.label || item.bottom || item.description),
+        }))
+      : [];
+
+  const sectorItems = Array.isArray(sectors.items)
+    ? sectors.items.map((item: Record<string, unknown>) => ({
+        icon: textValue(item.icon),
+        image: mediaUrl((item.image as StrapiMedia) || null, textValue(item.image_url)),
+        title: textValue(item.title),
+        description: textValue(item.description),
+      }))
+    : Array.isArray(sectors.sectors)
+      ? sectors.sectors.map((item: Record<string, unknown>) => ({
+          icon: textValue(item.icon),
+          image: mediaUrl((item.image as StrapiMedia) || null, textValue(item.image_url)),
+          title: textValue(item.title),
+          description: textValue(item.description),
+        }))
+      : [];
+
+  const teamRows = Array.isArray(team.items)
+    ? team.items.map((item: Record<string, unknown>) => ({
+        top: textValue(item.title || item.top),
+        bottom: textValue(item.description || item.bottom),
+      }))
+    : Array.isArray(team.rows)
+      ? team.rows.map((item: Record<string, unknown>) => ({
+          top: textValue(item.title || item.top),
+          bottom: textValue(item.description || item.bottom),
+        }))
+      : [];
+
+  return {
+    story: {
+      eyebrow: textValue(story.eyebrow || story.badge || 'About Kriyasoft'),
+      titleLine1: textValue(story.title_line1 || story.titleLine1 || story.main_title || story.title),
+      titleHighlight: textValue(story.title_highlight || story.titleHighlight || ''),
+      titleLine2: textValue(story.title_line2 || story.titleLine2 || ''),
+      description: textValue(story.description),
+      buttonLabel: textValue(story.button_label || story.buttonLabel || 'Talk to Our Experts'),
+      buttonUrl: textValue(story.button_url || story.buttonUrl || '/contact'),
+    },
+    credentials,
+    sectors: sectorItems,
+    teamRows,
   };
 }
 
