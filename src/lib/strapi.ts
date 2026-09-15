@@ -112,13 +112,15 @@ export type ServicesPageContent = {
   hero: {
     eyebrow: string;
     title: string;
+    titlehighlight:string;
+    titleLine2:string;
     description: string;
     buttonLabel: string;
     buttonUrl: string;
     highlights: { label: string; value: string; description: string }[];
   };
-  list: { eyebrow: string; title: string; description: string; items: SiteService[] };
-  capabilities: { eyebrow: string; title: string; items: { title: string; description: string; image?: string; icon: string }[] };
+  list: { eyebrow: string; title: string;  titlehighlight:string; description: string; items: SiteService[] };
+  capabilities: { eyebrow: string; titlehighlight:string; title: string; items: { title: string; description: string; image?: string; icon: string }[] };
   process: { eyebrow: string; title: string; items: { number: string; title: string; description: string; icon: string }[] };
   cta: { eyebrow: string; title: string; subTitle: string; description: string; buttonLabel: string; buttonUrl: string };
 };
@@ -467,19 +469,19 @@ export async function getServicesPageContent(): Promise<ServicesPageContent> {
   const cta = section('acf-sections.qubi-services-cta');
   return {
     hero: {
-      eyebrow: textValue(hero.eyebrow), title: textValue(hero.title), description: textValue(hero.description),
+      eyebrow: textValue(hero.eyebrow), title: textValue(hero.title), titlehighlight: textValue(hero.title_highlight), titleLine2: textValue(hero.title_line2), description: textValue(hero.description),
       buttonLabel: textValue(hero.button_label), buttonUrl: textValue(hero.button_url),
       highlights: Array.isArray(hero.highlights) ? hero.highlights as ServicesPageContent['hero']['highlights'] : [],
     },
     list: {
-      eyebrow: textValue(list.eyebrow), title: textValue(list.title), description: textValue(list.description),
+      eyebrow: textValue(list.eyebrow), title: textValue(list.title), titlehighlight: textValue(list.title_highlight), description: textValue(list.description),
       items: Array.isArray(list.items) ? list.items.map((item, index) => ({
         id: String(item.id || index), title: textValue(item.title), blurb: textValue(item.blurb),
         tags: asStringArray(item.tags), points: asStringArray(item.points), icon: textValue(item.icon),
       })) : [],
     },
     capabilities: {
-      eyebrow: textValue(capabilities.eyebrow), title: textValue(capabilities.title),
+      eyebrow: textValue(capabilities.eyebrow), titlehighlight: textValue(capabilities.title_highlight), title: textValue(capabilities.title),
       items: Array.isArray(capabilities.items) ? capabilities.items.map((item) => ({
         title: textValue(item.title), description: textValue(item.description),
         image: mediaUrl((item.image as StrapiMedia) || null, textValue(item.image_url)), icon: textValue(item.icon),

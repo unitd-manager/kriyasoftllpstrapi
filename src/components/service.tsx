@@ -38,9 +38,12 @@ function ServicesHero({ content }: { content: ServicesPageContent['hero'] }) {
       <div className="max-w-6xl mx-auto px-[3%] sm:px-6 w-full pt-24 pb-20 relative">
         <SectionTag>{content.eyebrow}</SectionTag>
 
-        <h1 className="font-display text-5xl lg:text-6xl xl:text-7xl font-800 text-white leading-[1.05] max-w-4xl mb-8">
-          {content.title}
+       
+         <h1 className="font-display text-5xl lg:text-6xl xl:text-7xl font-800 text-white leading-[1.05] max-w-4xl mb-8">
+           {content.title}{' '}
+          <span className="gradient-text"> {content.titlehighlight}</span>  {content.titleLine2}
         </h1>
+
 
         <p className="text-slate-400 text-lg font-semibold leading-relaxed max-w-2xl mb-10 border-l-2 border-sky-500/30 pl-5 sm:pl-6">
           {content.description}
@@ -185,6 +188,8 @@ function ServicesList({ content }: { content: ServicesPageContent['list'] }) {
           <SectionTag>{content.eyebrow}</SectionTag>
           <h2 className="font-display text-4xl lg:text-5xl font-700 text-white leading-tight">
             {content.title}
+            <br />
+            <span className="gradient-text">{content.titlehighlight}</span>
           </h2>
           <p className="text-slate-400 text-sm mt-4">
             {content.description}
@@ -216,7 +221,7 @@ function Capabilities({ content }: { content: ServicesPageContent['capabilities'
         <div className="text-center mb-12 max-w-2xl mx-auto">
           <SectionTag>{content.eyebrow}</SectionTag>
           <h2 className="font-display text-4xl md:text-5xl font-700 text-white">
-            {content.title}
+            {content.title} <span className="gradient-text">beyond the core.</span>
           </h2>
         </div>
 
