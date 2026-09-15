@@ -126,7 +126,7 @@ export default function Footer() {
   ========================================================= */
 
   const strapiUrl = (
-    import.meta.env.VITE_STRAPI_URL || 'http://localhost:1339'
+    import.meta.env.VITE_STRAPI_URL || 'http://localhost:1336'
   ).replace(/\/$/, '');
 
   const footerLogo = footer?.logo?.url

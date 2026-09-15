@@ -55,20 +55,20 @@ function ServicesHero({ content }: { content: ServicesPageContent['hero'] }) {
         </Link>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          {content.highlights.map(({ icon, top, bottom }) => {
-            const Icon = serviceIcons[icon as keyof typeof serviceIcons] || ShieldCheck;
+          {content.highlights.map(({ label, value, description }) => {
+            const Icon = serviceIcons[label as keyof typeof serviceIcons] || ShieldCheck;
             return (
-            <div key={top} className="card-hover solid-card rounded-2xl p-3 sm:p-5">
+            <div key={value} className="card-hover solid-card rounded-2xl p-3 sm:p-5">
               <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
                 <div className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-xl bg-sky-500/10 border border-sky-500/15 flex items-center justify-center">
                   <Icon size={18} className="text-sky-400" />
                 </div>
                 <div className="min-w-0 w-full">
                   <div className="font-display text-base sm:text-lg md:text-xl font-800 text-white leading-tight break-words">
-                    {top}
+                    {value}
                   </div>
                   <div className="text-[11px] sm:text-xs text-slate-400 mt-1 break-words sm:truncate">
-                    {bottom}
+                    {description}
                   </div>
                 </div>
               </div>

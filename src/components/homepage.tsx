@@ -237,7 +237,7 @@ function Services({ content }: { content: HomepageContent['services'] }) {
     </section>
   );
 }
-
+ 
 // ─── Capabilities ─────────────────────────────────────────────────────────────
 function Capabilities({ content }: { content: HomepageContent['capabilities'] }) {
   const [active, setActive] = useState(0);

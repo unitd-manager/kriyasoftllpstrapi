@@ -1,0 +1,47 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "title": "AI & Automation Solutions",
+      "slug": "ai-automation-solutions",
+      "blurb": "Design and deliver secure automation, intelligent workflows, and data-backed product experiences for growing teams.",
+      "tags": ["AI", "Automation", "Analytics"],
+      "points": [
+        "AI workflow design",
+        "automation strategy",
+        "operations intelligence"
+      ],
+      "icon": "Cpu",
+      "sortOrder": 1,
+      "publishedAt": "2026-09-14T00:00:00.000Z"
+    }
+  ],
+  "pageBuilder": [
+    {
+      "__component": "acf-sections.qubi-how-it-works-section",
+      "eyebrow": "How it works",
+      "main_title": "From challenge to measurable transformation",
+      "title_highlight": "transformation",
+      "steps": [
+        {
+          "step_number": "01",
+          "title": "Discover",
+          "description": "We align your team, people, data, and goals with a realistic transformation roadmap.",
+          "icon": "Search"
+        },
+        {
+          "step_number": "02",
+          "title": "Design",
+          "description": "We model the workflows, technical architecture, and delivery milestones that reduce friction.",
+          "icon": "Layers"
+        },
+        {
+          "step_number": "03",
+          "title": "Deliver",
+          "description": "We build with expert delivery, quality governance, and adoption support from launch onward.",
+          "icon": "Rocket"
+        }
+      ]
+    }
+  ]
+}

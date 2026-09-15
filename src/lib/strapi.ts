@@ -115,7 +115,7 @@ export type ServicesPageContent = {
     description: string;
     buttonLabel: string;
     buttonUrl: string;
-    highlights: { icon: string; top: string; bottom: string }[];
+    highlights: { label: string; value: string; description: string }[];
   };
   list: { eyebrow: string; title: string; description: string; items: SiteService[] };
   capabilities: { eyebrow: string; title: string; items: { title: string; description: string; image?: string; icon: string }[] };
@@ -189,7 +189,7 @@ export async function getServices(): Promise<SiteService[]> {
 }
 
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const response = await fetch(`${API_URL}/api/pages/slug/home`);
+  const response = await fetch(`${API_URL}/api/pages/slug/home?populate=pageBuilder`);
   if (!response.ok) throw new Error(`Strapi Home page request failed: ${response.status}`);
 
   const body = (await response.json()) as StrapiSingleResponse<StrapiPage>;
@@ -210,6 +210,60 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     ? String((value as { label?: unknown }).label || '')
     : '';
 
+  const normalizeRelationArrayText = (entries: unknown): string[] =>
+    Array.isArray(entries)
+      ? entries.map((entry) => {
+          if (entry && typeof entry === 'object') {
+            return textValue(
+              (entry as { name?: unknown }).name
+              || (entry as { title?: unknown }).title
+              || (entry as { label?: unknown }).label
+              || (entry as { value?: unknown }).value
+              || (entry as { technology?: unknown }).technology
+              || (entry as { tech?: unknown }).tech
+              || (entry as { Tags?: unknown }).Tags
+              || (entry as { tag?: unknown }).tag,
+            );
+          }
+          return textValue(entry);
+        }).filter(Boolean)
+      : [];
+
+  const itemPoints = (item: Record<string, unknown>) => {
+    const rawStats = Array.isArray(item.stat)
+      ? item.stat
+      : Array.isArray(item.points)
+        ? item.points
+        : [];
+
+    return rawStats.map((entry) => {
+      if (entry && typeof entry === 'object' && 'value' in entry) {
+        return textValue((entry as { value?: unknown }).value);
+      }
+      return textValue(entry);
+    }).filter(Boolean);
+  };
+
+  const itemTags = (item: Record<string, unknown>) => {
+    const rawTags = Array.isArray(item.Service)
+      ? item.Service
+      : Array.isArray(item.tags)
+        ? item.tags
+        : [];
+
+    return normalizeRelationArrayText(rawTags);
+  };
+
+  const itemTechnologies = (item: Record<string, unknown>) => {
+    const raw = Array.isArray(item.ServiceTechnologies)
+      ? item.ServiceTechnologies
+      : Array.isArray(item.technologies)
+        ? item.technologies
+        : [];
+
+    return normalizeRelationArrayText(raw);
+  };
+
   return {
     hero: {
       eyebrow: textValue(hero.badge_text),
@@ -227,20 +281,35 @@ export async function getHomepageContent(): Promise<HomepageContent> {
       badge: textValue(hero.badge),
       image: mediaUrl((hero.hero_image as StrapiMedia) || null, textValue(hero.image_url)),
     },
-    ticker: { items: asStringArray(ticker.items) },
+    ticker: {
+      items: Array.isArray(ticker.items)
+        ? ticker.items.map((item) => textValue(item.name || item.logo || item.title || item.label))
+        : asStringArray(ticker.items),
+    },
     services: {
       eyebrow: textValue(homeServices.eyebrow),
-      titleLine1: textValue(homeServices.title_line1),
-      titleHighlight: textValue(homeServices.title_highlight),
+      titleLine1: textValue(homeServices.title_line_1 || homeServices.title_line1 || homeServices.titleLine1 || ''),
+      titleHighlight: textValue(homeServices.title_highlight || ''),
       items: Array.isArray(homeServices.items)
-        ? homeServices.items.map((item, index) => ({
-            id: String(item.id || index),
-            title: textValue(item.title),
-            blurb: textValue(item.blurb),
-            tags: asStringArray(item.tags),
-            points: asStringArray(item.points),
-            icon: textValue(item.icon),
-          }))
+        ? homeServices.items.map((item, index) => {
+            const serviceItem = item as Record<string, unknown>;
+            const points = itemPoints(serviceItem);
+            const tags = itemTags(serviceItem);
+            return {
+              id: String(serviceItem.id || index),
+              title: textValue(serviceItem.title),
+              blurb: textValue(serviceItem.description || serviceItem.blurb || ''),
+              tags,
+              points: points.length
+                ? points
+                : asStringArray(serviceItem.points).length
+                  ? asStringArray(serviceItem.points)
+                  : textValue(serviceItem.description)
+                    ? [textValue(serviceItem.description)]
+                    : [],
+              icon: textValue(serviceItem.icon),
+            };
+          })
         : [],
     },
     capabilities: {
@@ -250,13 +319,16 @@ export async function getHomepageContent(): Promise<HomepageContent> {
       technologiesLabel: textValue(capabilities.technologies_label || capabilities.technologiesLabel || ''),
       footer: textValue(capabilities.footer || ''),
       items: Array.isArray(capabilities.capability_items)
-        ? capabilities.capability_items.map((item) => ({
-            title: textValue(item.title),
-            short: textValue(item.short || item.title || ''),
-            description: textValue(item.description),
-            technologies: asStringArray(item.technologies),
-            icon: textValue(item.icon),
-          }))
+        ? capabilities.capability_items.map((item) => {
+            const capabilityItem = item as Record<string, unknown>;
+            return {
+              title: textValue(capabilityItem.title),
+              short: textValue(capabilityItem.short || capabilityItem.short_label || capabilityItem.title || ''),
+              description: textValue(capabilityItem.description),
+              technologies: itemTechnologies(capabilityItem),
+              icon: textValue(capabilityItem.icon),
+            };
+          })
         : [],
     },
     process: {
@@ -285,7 +357,7 @@ export async function getHomepageContent(): Promise<HomepageContent> {
         : [],
     },
     cta: {
-      eyebrow: '',
+      eyebrow: textValue(cta.eyebrow),
       titleLine1: textValue(cta.main_title),
       titleHighlight: textValue(cta.title_highlight),
       description: textValue(cta.description),

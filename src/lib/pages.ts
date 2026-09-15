@@ -1,5 +1,5 @@
 const API_URL = (
-  import.meta.env.VITE_STRAPI_URL || 'http://localhost:1339'
+  import.meta.env.VITE_STRAPI_URL || 'http://localhost:1336'
 ).replace(/\/$/, '');
 
 /* =========================================================
