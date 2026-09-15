@@ -124,7 +124,18 @@ export type ServicesPageContent = {
 };
 
 const asStringArray = (value: unknown): string[] =>
-  Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+  Array.isArray(value)
+    ? value.map((item) => {
+        if (typeof item === 'string') return item;
+        if (!item || typeof item !== 'object') return '';
+
+        const record = item as Record<string, unknown>;
+        const source = record.attributes && typeof record.attributes === 'object'
+          ? record.attributes as Record<string, unknown>
+          : record;
+        return textValue(source.value || source.name || source.title || source.label || source.tags || source.Tags || '');
+      }).filter(Boolean)
+    : [];
 
 const unwrap = <T,>(item: T & { attributes?: T }): T => item.attributes || item;
 

@@ -350,7 +350,6 @@ export default function ServicesPage() {
       {/*<ComplianceTicker />*/}
       <Capabilities content={content.capabilities} />
       {/*<Process />*/}
-      <Process content={content.process} />
       <CTASection content={content.cta} />
       <Footer />
     </div>
