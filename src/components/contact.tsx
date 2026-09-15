@@ -15,6 +15,18 @@ import {
   type ContactPageSection,
 } from '../lib/pages';
 
+const initialContactContent: ContactPageSection = {
+  __component: 'acf-sections.contact-page-section',
+  id: 0,
+  eyebrow: 'Contact us',
+  heading: "Let's start a",
+  heading_highlight: 'conversation.',
+  form_title: 'Send us a message',
+  office_label: 'Our office',
+  office_address: '',
+  email: '',
+};
+
 function SectionTag({ children }: { children: React.ReactNode }) {
   return (
     <div className="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 rounded-full px-4 py-1.5 mb-3">
@@ -32,9 +44,7 @@ function isValidEmail(email: string) {
 }
 
 export default function Contact() {
-  const [content, setContent] = useState<ContactPageSection | null>(null);
-
-  const [loading, setLoading] = useState(true);
+  const [content, setContent] = useState<ContactPageSection>(initialContactContent);
 
   const [form, setForm] = useState({
     name: '',
@@ -62,8 +72,6 @@ export default function Contact() {
   useEffect(() => {
     const loadContactPage = async () => {
       try {
-        setLoading(true);
-
         const page = await getPageBySlug('contact');
 
         const contactSection = page?.pageBuilder?.find(
@@ -81,8 +89,6 @@ export default function Contact() {
         setContent(contactSection as ContactPageSection);
       } catch (error) {
         console.error('Failed to load Contact page:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -194,49 +200,6 @@ export default function Contact() {
       setSending(false);
     }
   };
-
-  /*
-   * ---------------------------------------------------------
-   * LOADING STATE
-   * ---------------------------------------------------------
-   */
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#080c18] flex items-center justify-center">
-        <Loader2
-          size={32}
-          className="text-sky-400 animate-spin"
-        />
-      </div>
-    );
-  }
-
-  /*
-   * ---------------------------------------------------------
-   * ERROR STATE
-   * ---------------------------------------------------------
-   */
-  if (!content) {
-    return (
-      <div className="min-h-screen bg-[#080c18] text-white">
-        <Navbar />
-
-        <section className="min-h-[70vh] flex items-center justify-center px-6">
-          <div className="text-center">
-            <h1 className="font-display text-3xl font-bold mb-3">
-              Contact page unavailable
-            </h1>
-
-            <p className="text-slate-400">
-              The Contact Page Section could not be loaded from Strapi.
-            </p>
-          </div>
-        </section>
-
-        <Footer />
-      </div>
-    );
-  }
 
   /*
    * ---------------------------------------------------------

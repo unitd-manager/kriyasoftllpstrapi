@@ -345,7 +345,7 @@ export default function ServicesPage() {
   }, []);
 
   if (error) return <div className="min-h-screen bg-[#0a0f1e] text-white flex items-center justify-center px-6">{error}</div>;
-  if (!content) return <div className="min-h-screen bg-[#0a0f1e] text-white flex items-center justify-center px-6">Loading services content...</div>;
+  if (!content) return;
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] overflow-x-hidden">
