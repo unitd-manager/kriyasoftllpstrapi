@@ -574,7 +574,7 @@ export default function Homepage() {
   }
 
   if (!content) {
-    return <div className="min-h-screen bg-[#0a0f1e] text-white flex items-center justify-center px-6">Loading homepage content...</div>;
+    return;
   }
 
   return (

@@ -44,6 +44,17 @@ type LegalPageData = {
   pageBuilder?: LegalPageSection[];
 };
 
+const initialLegalPage: LegalPageData = {
+  pageBuilder: [
+    {
+      __component: 'acf-sections.legal-page-hero',
+      eyebrow: 'Legal',
+      heading: 'Legal Information',
+      description: 'Our policies and terms are being prepared.',
+    },
+  ],
+};
+
 function SectionTag({ children }: { children: React.ReactNode }) {
   return (
     <div className="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 rounded-full px-4 py-1.5 mb-5">
@@ -165,8 +176,7 @@ export default function LegalPage({
 }: {
   slug: string;
 }) {
-  const [page, setPage] = useState<LegalPageData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState<LegalPageData>(initialLegalPage);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -174,7 +184,6 @@ export default function LegalPage({
 
     async function loadPage() {
       try {
-        setLoading(true);
         setError(null);
 
         const data = await getPageBySlug(slug);
@@ -192,9 +201,6 @@ export default function LegalPage({
           setError('Unable to load this page.');
         }
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
       }
     }
 
@@ -205,23 +211,7 @@ export default function LegalPage({
     };
   }, [slug]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0a0f1e] overflow-x-hidden">
-        <Navbar />
-
-        <section className="min-h-screen flex items-center justify-center bg-[#080c18]">
-          <p className="text-slate-400 text-sm">
-            Loading...
-          </p>
-        </section>
-
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error || !page) {
+  if (error && !page.pageBuilder?.length) {
     return (
       <div className="min-h-screen bg-[#0a0f1e] overflow-x-hidden">
         <Navbar />
