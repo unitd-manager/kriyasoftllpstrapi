@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import {
+  API_URL,
   getFooter,
   type FooterData,
   type FooterColumn,
 } from '../lib/pages';
+import { getImageUrl } from '../lib/imageUrl';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -125,15 +127,7 @@ export default function Footer() {
      STRAPI LOGO
   ========================================================= */
 
-  const strapiUrl = (
-    import.meta.env.VITE_STRAPI_URL || 'http://localhost:1336'
-  ).replace(/\/$/, '');
-
-  const footerLogo = footer?.logo?.url
-    ? footer.logo.url.startsWith('http')
-      ? footer.logo.url
-      : `${strapiUrl}${footer.logo.url}`
-    : logo;
+  const footerLogo = getImageUrl(footer?.logo?.url, API_URL) || logo;
 
   /* =========================================================
      COPYRIGHT
