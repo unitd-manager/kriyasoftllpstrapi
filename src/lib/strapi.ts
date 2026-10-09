@@ -1,4 +1,5 @@
 import fallbackCaseStudies, { type CaseStudy } from '../data/caseStudies';
+import { getImageUrl } from './imageUrl';
 
 const API_URL = (import.meta.env.VITE_STRAPI_URL || 'http://localhost:1339').replace(/\/$/, '');
 
@@ -157,8 +158,7 @@ const textValue = (value: unknown): string => {
 };
 
 const mediaUrl = (media: StrapiMedia, fallback: string) => {
-  if (!media?.url) return fallback;
-  return media.url.startsWith('http') ? media.url : `${API_URL}${media.url}`;
+  return getImageUrl(media?.url || fallback, API_URL);
 };
 
 export async function getHeaderContent(): Promise<HeaderContent> {
