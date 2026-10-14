@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.6.2",
     "@strapi/provider-email-nodemailer": "^5.53.0",
     "@supabase/supabase-js": "^2.57.4",
     "framer-motion": "^12.42.2",

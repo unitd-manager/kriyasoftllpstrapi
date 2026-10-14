@@ -142,6 +142,7 @@ export interface CreateEnquiryData {
   name: string;
   email: string;
   message: string;
+  captchaToken: string;
 }
 
 export async function createEnquiry(
@@ -159,22 +160,31 @@ export async function createEnquiry(
           name: data.name,
           email: data.email,
           comments: data.message,
+          captchaToken: data.captchaToken,
         },
       }),
     }
   );
 
   if (!response.ok) {
-    let errorMessage = `Failed to submit enquiry (status ${response.status})`;
+    const errorJson: unknown = await response.json().catch(() => null);
+    let errorMessage =
+      response.status === 400
+        ? 'Please check your details and complete the CAPTCHA before trying again.'
+        : response.status === 429
+          ? 'Too many requests. Please wait a moment and try again.'
+          : 'Unable to submit your enquiry. Please try again.';
 
-    try {
-      const errorJson = await response.json();
-
-      if (errorJson?.error?.message) {
-        errorMessage = errorJson.error.message;
-      }
-    } catch {
-      // Keep default error message.
+    if (
+      typeof errorJson === 'object' &&
+      errorJson !== null &&
+      'error' in errorJson &&
+      typeof errorJson.error === 'object' &&
+      errorJson.error !== null &&
+      'message' in errorJson.error &&
+      typeof errorJson.error.message === 'string'
+    ) {
+      errorMessage = errorJson.error.message;
     }
 
     throw new Error(errorMessage);
