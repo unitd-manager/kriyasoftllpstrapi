@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Mail,
   MapPin,
   ArrowRight,
   Loader2,
 } from 'lucide-react';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -43,7 +44,10 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 }
 
+const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+
 export default function Contact() {
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const [content, setContent] = useState<ContactPageSection>(initialContactContent);
 
   const [form, setForm] = useState({
@@ -63,6 +67,8 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
 
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const [captchaToken, setCaptchaToken] = useState('');
 
   /*
    * ---------------------------------------------------------
@@ -173,6 +179,11 @@ export default function Contact() {
       return;
     }
 
+    if (!captchaToken) {
+      setServerError('Please complete the CAPTCHA before sending your message.');
+      return;
+    }
+
     setSending(true);
     setServerError(null);
 
@@ -181,6 +192,7 @@ export default function Contact() {
         name: form.name.trim(),
         email: form.email.trim(),
         message: form.message.trim(),
+        captchaToken,
       });
 
       setSubmitted(true);
@@ -194,10 +206,14 @@ export default function Contact() {
       console.error('Failed to submit enquiry:', error);
 
       setServerError(
-        'Something went wrong while sending your message. Please try again.'
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong while sending your message. Please try again.'
       );
     } finally {
       setSending(false);
+      setCaptchaToken('');
+      turnstileRef.current?.reset();
     }
   };
 
@@ -519,9 +535,37 @@ export default function Contact() {
                     )}
                   </div>
 
+                  {turnstileSiteKey ? (
+                    <Turnstile
+                      ref={turnstileRef}
+                      siteKey={turnstileSiteKey}
+                      onSuccess={(token) => {
+                        setCaptchaToken(token);
+                        setServerError(null);
+                      }}
+                      onExpire={() => {
+                        setCaptchaToken('');
+                        setServerError('CAPTCHA expired. Please complete it again.');
+                      }}
+                      onError={(errorCode) => {
+                        console.error('Turnstile widget error:', errorCode);
+                        setCaptchaToken('');
+                        setServerError(
+                          errorCode.startsWith('110')
+                            ? 'This site is not authorized for the configured CAPTCHA key. Add localhost to the Turnstile widget’s allowed hostnames, or check the site key.'
+                            : 'CAPTCHA could not be loaded. Check your connection and Turnstile configuration, then try again.'
+                        );
+                      }}
+                    />
+                  ) : (
+                    <p className="text-sm text-red-400" role="alert">
+                      CAPTCHA is not configured. Please contact us directly.
+                    </p>
+                  )}
+
                   {/* SERVER ERROR */}
                   {serverError && (
-                    <p className="text-sm text-red-400">
+                    <p className="text-sm text-red-400" role="alert">
                       {serverError}
                     </p>
                   )}
