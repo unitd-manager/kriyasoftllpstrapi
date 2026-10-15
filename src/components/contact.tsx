@@ -548,13 +548,12 @@ export default function Contact() {
                         setServerError('CAPTCHA expired. Please complete it again.');
                       }}
                       onError={(errorCode) => {
-                        console.error('Turnstile widget error:', errorCode);
+                        const captchaErrorMessage =
+                          'The security check could not load. Please refresh the page and try again.';
+
+                        console.error('Turnstile error code:', errorCode);
                         setCaptchaToken('');
-                        setServerError(
-                          errorCode.startsWith('110')
-                            ? 'This site is not authorized for the configured CAPTCHA key. Add localhost to the Turnstile widget’s allowed hostnames, or check the site key.'
-                            : 'CAPTCHA could not be loaded. Check your connection and Turnstile configuration, then try again.'
-                        );
+                        setServerError(captchaErrorMessage);
                       }}
                     />
                   ) : (
