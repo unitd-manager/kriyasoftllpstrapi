@@ -138,16 +138,22 @@ export default function Contact() {
 
     if (!form.name.trim()) {
       nextErrors.name = 'Name is required.';
+    } else if (form.name.trim().length > 120) {
+      nextErrors.name = 'Name must be 120 characters or fewer.';
     }
 
     if (!form.email.trim()) {
       nextErrors.email = 'Email is required.';
+    } else if (form.email.trim().length > 254) {
+      nextErrors.email = 'Email must be 254 characters or fewer.';
     } else if (!isValidEmail(form.email)) {
       nextErrors.email = 'Please enter a valid email address.';
     }
 
     if (!form.message.trim()) {
       nextErrors.message = 'Message is required.';
+    } else if (form.message.trim().length > 5000) {
+      nextErrors.message = 'Message must be 5000 characters or fewer.';
     }
 
     setErrors(nextErrors);
@@ -413,6 +419,7 @@ export default function Contact() {
                       id="name"
                       name="name"
                       type="text"
+                      maxLength={120}
                       value={form.name}
                       onChange={handleChange}
                       placeholder="Your full name"
@@ -460,6 +467,7 @@ export default function Contact() {
                       id="email"
                       name="email"
                       type="email"
+                      maxLength={254}
                       value={form.email}
                       onChange={handleChange}
                       placeholder="you@company.com"
@@ -507,6 +515,7 @@ export default function Contact() {
                       id="message"
                       name="message"
                       rows={4}
+                      maxLength={5000}
                       value={form.message}
                       onChange={handleChange}
                       placeholder="Tell us about your project..."
@@ -539,6 +548,7 @@ export default function Contact() {
                     <Turnstile
                       ref={turnstileRef}
                       siteKey={turnstileSiteKey}
+                      options={{ action: 'contact' }}
                       onSuccess={(token) => {
                         setCaptchaToken(token);
                         setServerError(null);
@@ -635,7 +645,8 @@ export default function Contact() {
               "
             >
               {/* OFFICE */}
-              <div
+              {content.office_address?.trim() && (
+                <div
                 className="
                   rounded-2xl
                   border
@@ -675,7 +686,7 @@ export default function Contact() {
                       mb-1
                     "
                   >
-                    {content.office_label || 'Office (India)'}
+                    {content.office_label || 'Our office'}
                   </h3>
 
                   <p
@@ -686,14 +697,15 @@ export default function Contact() {
                       whitespace-pre-line
                     "
                   >
-                    {content.office_address ||
-                      'Landons Road, Kilpauk\nChennai – 600010'}
+                    {content.office_address.trim()}
                   </p>
                 </div>
               </div>
+              )}
 
               {/* EMAIL */}
-              <div
+              {content.email?.trim() && (
+                <div
                 className="
                   rounded-2xl
                   border
@@ -736,10 +748,6 @@ export default function Contact() {
                     Email
                   </h3>
 
-                  {/* 
-                    Same text color as the address:
-                    text-slate-400
-                  */}
                   <a
                     href={`mailto:${content.email}`}
                     className="
@@ -753,6 +761,7 @@ export default function Contact() {
                   </a>
                 </div>
               </div>
+              )}
 
               {/* =================================================
                   GOOGLE MAP
