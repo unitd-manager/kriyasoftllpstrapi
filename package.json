@@ -12,8 +12,6 @@
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.6.2",
-    "@strapi/provider-email-nodemailer": "^5.53.0",
-    "@supabase/supabase-js": "^2.57.4",
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
